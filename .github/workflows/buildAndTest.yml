@@ -26,6 +26,8 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: test
-      - name: Build with Maven
+          cache: maven
+      - name: Test with Maven
         run: mvn -B test --file pom.xml
+# Currently both jobs are using the same cache. When maven test is called, gitHub realize that some dependecies are
+#  missing and start downloading them. Can we somehow make this 2 jobs to have different key for cache. https://github.com/actions/setup-java
