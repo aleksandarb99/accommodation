@@ -67,7 +67,7 @@ public class AccommodationServiceIntegrationTest {
         accommodationService.createAccommodation(accommodationDto);
 
         // Then
-        Assertions.assertEquals(4, accommodationRepository.count());
+        Assertions.assertEquals(5, accommodationRepository.count());
         Assertions.assertTrue(accommodationRepository.findByName(accommodationDto.getName()).isPresent());
     }
 
