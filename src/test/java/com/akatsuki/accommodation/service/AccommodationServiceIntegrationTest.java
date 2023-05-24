@@ -2,6 +2,7 @@ package com.akatsuki.accommodation.service;
 
 import com.akatsuki.accommodation.dto.AccommodationDto;
 import com.akatsuki.accommodation.dto.BenefitsDto;
+import com.akatsuki.accommodation.exception.BadRequestException;
 import com.akatsuki.accommodation.repository.AccommodationRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ import java.util.Collections;
 
 @SpringBootTest
 @Testcontainers(parallel = true)
-public class AccommodationServiceIntegrationTest {
+class AccommodationServiceIntegrationTest {
 
     @Container
     static PostgreSQLContainer<?> db = new PostgreSQLContainer<>("postgres:latest");
@@ -36,17 +37,17 @@ public class AccommodationServiceIntegrationTest {
     private AccommodationRepository accommodationRepository;
 
     @Test
-    public void createAccommodationTestRuntimeException() {
+    void createAccommodationTestRuntimeException() {
         // Given
         AccommodationDto accommodationDto = new AccommodationDto();
         accommodationDto.setName("Vila Jovanovic");
 
         // When - Then
-        Assertions.assertThrows(RuntimeException.class, () -> accommodationService.createAccommodation(accommodationDto));
+        Assertions.assertThrows(BadRequestException.class, () -> accommodationService.createAccommodation(accommodationDto));
     }
 
     @Test
-    public void createAccommodationTest() {
+    void createAccommodationTest() {
         // Given
         BenefitsDto benefitsDto = BenefitsDto.builder()
                 .ac(true)
@@ -67,7 +68,7 @@ public class AccommodationServiceIntegrationTest {
         accommodationService.createAccommodation(accommodationDto);
 
         // Then
-        Assertions.assertEquals(5, accommodationRepository.count());
+        Assertions.assertEquals(4, accommodationRepository.count());
         Assertions.assertTrue(accommodationRepository.findByName(accommodationDto.getName()).isPresent());
     }
 

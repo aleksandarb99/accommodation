@@ -18,21 +18,19 @@
         <modelmapper.version>3.1.1</modelmapper.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
         <mockito.version>5.1.1</mockito.version>
+        <testcontainers.version>1.18.1</testcontainers.version>
     </properties>
-
-    <!--    TODO: Fix versions-->
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers-bom</artifactId>
-                <version>1.18.1</version>
+                <version>${testcontainers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -86,7 +84,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>1.18.1</version>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -97,12 +95,10 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.18.1</version>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -138,5 +134,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

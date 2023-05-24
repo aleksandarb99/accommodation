@@ -16,7 +16,7 @@ import java.util.Set;
 @RestControllerAdvice
 public class ControllerAdvicer {
 
-    @ExceptionHandler({RuntimeException.class})
+    @ExceptionHandler({RuntimeException.class, BadRequestException.class})
     public ResponseEntity<ResponseMessageDto> handleRuntimeException(
             final RuntimeException ex) {
         return new ResponseEntity<>(createResponseMessage(ex.getMessage()), HttpStatus.BAD_REQUEST);
@@ -25,8 +25,7 @@ public class ControllerAdvicer {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseMessageDto handleMethodArgNotValid(MethodArgumentNotValidException exception) {
-        ResponseMessageDto response = new ResponseMessageDto(LocalDateTime.now(), exception.getLocalizedMessage());
-        return response;
+        return new ResponseMessageDto(LocalDateTime.now(), exception.getLocalizedMessage());
     }
 
     @ExceptionHandler(value = {ConstraintViolationException.class})

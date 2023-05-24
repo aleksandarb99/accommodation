@@ -1,6 +1,7 @@
 package com.akatsuki.accommodation.service;
 
 import com.akatsuki.accommodation.dto.AccommodationDto;
+import com.akatsuki.accommodation.exception.BadRequestException;
 import com.akatsuki.accommodation.model.Accommodation;
 import com.akatsuki.accommodation.repository.AccommodationRepository;
 import com.akatsuki.accommodation.service.impl.AccommodationServiceImpl;
@@ -17,7 +18,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class AccommodationServiceTest {
+class AccommodationServiceTest {
 
     @Mock
     private AccommodationRepository accommodationRepositoryMock;
@@ -27,7 +28,7 @@ public class AccommodationServiceTest {
     private AccommodationServiceImpl accommodationService;
 
     @Test
-    public void createAccommodationTestRuntimeException() {
+    void createAccommodationTestRuntimeException() {
         // Given
         AccommodationDto accommodationDto = new AccommodationDto();
         Optional<Accommodation> optionalAccommodation = Optional.of(new Accommodation());
@@ -35,11 +36,11 @@ public class AccommodationServiceTest {
         when(accommodationRepositoryMock.findByName(any())).thenReturn(optionalAccommodation);
 
         // When - Then
-        Assertions.assertThrows(RuntimeException.class, () -> accommodationService.createAccommodation(accommodationDto));
+        Assertions.assertThrows(BadRequestException.class, () -> accommodationService.createAccommodation(accommodationDto));
     }
 
     @Test
-    public void createAccommodationTest() {
+    void createAccommodationTest() {
         // Given
         AccommodationDto accommodationDto = new AccommodationDto();
         Accommodation accommodation = new Accommodation();
