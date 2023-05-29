@@ -63,5 +63,5 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/accommodation:$VERSION_OF_POM,${{
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/accommodation:${{ env.VERSION_OF_POM }},${{
             secrets.DOCKERHUB_USERNAME }}/accommodation:latest
