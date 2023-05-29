@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Extract Version from pom.xml
-          run: |# Extract version using grep and awk
+          run: |
             version=$(grep -m 1 "<version>" pom.xml | awk -F'[<>]' '{print $3}')
             echo "VERSION=${version}" >> $VERSION
       - name: Login to Docker Hub
