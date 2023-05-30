@@ -1,5 +1,6 @@
 package com.akatsuki.accommodation.config;
 
+import com.akatsuki.accommodation.enums.PriceType;
 import com.akatsuki.accommodation.model.Accommodation;
 import com.akatsuki.accommodation.model.Benefits;
 import com.akatsuki.accommodation.repository.AccommodationRepository;
@@ -45,6 +46,9 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
                 .maxQuests(6)
                 .benefits(b1)
                 .photographs(Collections.emptyList())
+                .priceType(PriceType.FIXED_PER_NIGHT)
+                .defaultPrice(100)
+                .customPrices(Collections.emptyList())
                 .build();
         var a2 = Accommodation.builder()
                 .name("Vila Soko")
@@ -53,6 +57,9 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
                 .maxQuests(4)
                 .benefits(b2)
                 .photographs(Collections.emptyList())
+                .priceType(PriceType.FIXED_PER_NIGHT)
+                .defaultPrice(80)
+                .customPrices(Collections.emptyList())
                 .build();
         var a3 = Accommodation.builder()
                 .name("Vila Milica")
@@ -62,6 +69,9 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
                 .maxQuests(6)
                 .benefits(b3)
                 .photographs(Collections.emptyList())
+                .priceType(PriceType.PER_PERSON_PER_NIGHT)
+                .defaultPrice(15)
+                .customPrices(Collections.emptyList())
                 .build();
 
         accommodationRepository.saveAll(List.of(a1, a2, a3));

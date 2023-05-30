@@ -1,5 +1,6 @@
 package com.akatsuki.accommodation.dto;
 
+import com.akatsuki.accommodation.enums.PriceType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -23,4 +24,7 @@ public class AccommodationDto {
     @Min(value = 1)
     private int minQuests;
     private int maxQuests;
+    private PriceType priceType;
+    @Min(value = 1)
+    private int defaultPrice;
 }
