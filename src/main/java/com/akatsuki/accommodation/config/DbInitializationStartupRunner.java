@@ -3,12 +3,14 @@ package com.akatsuki.accommodation.config;
 import com.akatsuki.accommodation.enums.PriceType;
 import com.akatsuki.accommodation.model.Accommodation;
 import com.akatsuki.accommodation.model.Benefits;
+import com.akatsuki.accommodation.model.CustomPrice;
 import com.akatsuki.accommodation.repository.AccommodationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,6 +22,12 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        var cp1 = CustomPrice.builder()
+                .startDate(LocalDate.of(2023, 7, 1))
+                .endDate(LocalDate.of(2023, 8, 1))
+                .price(20)
+                .build();
+
         var b1 = Benefits.builder()
                 .ac(true)
                 .freeParkingSpace(true)
@@ -71,7 +79,7 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
                 .photographs(Collections.emptyList())
                 .priceType(PriceType.PER_PERSON_PER_NIGHT)
                 .defaultPrice(15)
-                .customPrices(Collections.emptyList())
+                .customPrices(List.of(cp1))
                 .build();
 
         accommodationRepository.saveAll(List.of(a1, a2, a3));
