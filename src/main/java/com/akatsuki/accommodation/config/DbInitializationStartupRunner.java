@@ -2,6 +2,7 @@ package com.akatsuki.accommodation.config;
 
 import com.akatsuki.accommodation.enums.PriceType;
 import com.akatsuki.accommodation.model.Accommodation;
+import com.akatsuki.accommodation.model.Availability;
 import com.akatsuki.accommodation.model.Benefits;
 import com.akatsuki.accommodation.model.CustomPrice;
 import com.akatsuki.accommodation.repository.AccommodationRepository;
@@ -22,6 +23,11 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        var av1 = Availability.builder()
+                .startDate(LocalDate.of(2023, 6, 1))
+                .endDate(LocalDate.of(2023, 7, 1))
+                .build();
+        
         var cp1 = CustomPrice.builder()
                 .startDate(LocalDate.of(2023, 7, 1))
                 .endDate(LocalDate.of(2023, 8, 1))
@@ -56,6 +62,7 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
                 .photographs(Collections.emptyList())
                 .priceType(PriceType.FIXED_PER_NIGHT)
                 .defaultPrice(100)
+                .availabilities(Collections.emptyList())
                 .customPrices(Collections.emptyList())
                 .build();
         var a2 = Accommodation.builder()
@@ -67,6 +74,7 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
                 .photographs(Collections.emptyList())
                 .priceType(PriceType.FIXED_PER_NIGHT)
                 .defaultPrice(80)
+                .availabilities(Collections.emptyList())
                 .customPrices(Collections.emptyList())
                 .build();
         var a3 = Accommodation.builder()
@@ -79,6 +87,7 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
                 .photographs(Collections.emptyList())
                 .priceType(PriceType.PER_PERSON_PER_NIGHT)
                 .defaultPrice(15)
+                .availabilities(List.of(av1))
                 .customPrices(List.of(cp1))
                 .build();
 

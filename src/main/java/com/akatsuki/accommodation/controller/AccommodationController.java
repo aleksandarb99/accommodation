@@ -1,7 +1,6 @@
 package com.akatsuki.accommodation.controller;
 
-import com.akatsuki.accommodation.dto.AccommodationDto;
-import com.akatsuki.accommodation.dto.CustomPriceDto;
+import com.akatsuki.accommodation.dto.*;
 import com.akatsuki.accommodation.model.Accommodation;
 import com.akatsuki.accommodation.service.AccommodationService;
 import jakarta.validation.Valid;
@@ -35,15 +34,44 @@ public class AccommodationController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/custom-price")
-    public void addCustomPrice(@Valid @RequestBody CustomPriceDto customPriceDto) {
-        accommodationService.addCustomPrice(customPriceDto);
+    @PostMapping("/{id}/custom-price")
+    public void addCustomPrice(@PathVariable Long id, @Valid @RequestBody CustomPriceDto customPriceDto) {
+        accommodationService.addCustomPrice(id, customPriceDto);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PutMapping("/custom-price/{id}")
+    public void updateCustomPrice(@PathVariable Long id, @Valid @RequestBody CustomPriceUpdateDto customPriceDto) {
+        accommodationService.updateCustomPrice(id, customPriceDto);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/custom-price/{id}")
-    public void deleteCustomPrice(@PathVariable Long id) {
-        accommodationService.deleteCustomPrice(id);
+    @DeleteMapping("/{id}/custom-price/{idOfPrice}")
+    public void deleteCustomPrice(@PathVariable Long id, @PathVariable Long idOfPrice) {
+        accommodationService.deleteCustomPrice(id, idOfPrice);
+    }
+
+    @GetMapping("/{id}/availability")
+    public AvailabilityCheckResponseDto checkAvailability(@PathVariable Long id, @Valid @RequestBody AvailabilityDto availabilityDto) {
+        boolean available = accommodationService.checkAvailability(id, availabilityDto);
+        return new AvailabilityCheckResponseDto(available);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{id}/availability")
+    public void createAvailability(@PathVariable Long id, @Valid @RequestBody AvailabilityDto availabilityDto) {
+        accommodationService.createAvailability(id, availabilityDto);
+    }
+
+    @PutMapping("/availability/{id}")
+    public void updateAvailability(@PathVariable Long id, @Valid @RequestBody AvailabilityUpdateDto availabilityDto) {
+        accommodationService.updateAvailability(id, availabilityDto);
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{id}/availability/{idOfAvailability}")
+    public void deleteAvailability(@PathVariable Long id, @PathVariable Long idOfAvailability) {
+        accommodationService.deleteAvailability(id, idOfAvailability);
     }
 
 }

@@ -1,11 +1,14 @@
 package com.akatsuki.accommodation.service.impl;
 
-import com.akatsuki.accommodation.dto.AccommodationDto;
-import com.akatsuki.accommodation.dto.CustomPriceDto;
+import com.akatsuki.accommodation.dto.*;
+import com.akatsuki.accommodation.enums.AvailabilityUpdateType;
 import com.akatsuki.accommodation.exception.BadRequestException;
 import com.akatsuki.accommodation.model.Accommodation;
+import com.akatsuki.accommodation.model.Availability;
 import com.akatsuki.accommodation.model.CustomPrice;
 import com.akatsuki.accommodation.repository.AccommodationRepository;
+import com.akatsuki.accommodation.repository.AvailabilityRepository;
+import com.akatsuki.accommodation.repository.CustomPriceRepository;
 import com.akatsuki.accommodation.service.AccommodationService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -21,6 +24,8 @@ import java.util.Optional;
 public class AccommodationServiceImpl implements AccommodationService {
 
     private final AccommodationRepository accommodationRepository;
+    private final CustomPriceRepository customPriceRepository;
+    private final AvailabilityRepository availabilityRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -37,6 +42,7 @@ public class AccommodationServiceImpl implements AccommodationService {
         }
         Accommodation accommodation = modelMapper.map(accommodationDto, Accommodation.class);
         accommodation.setCustomPrices(Collections.emptyList());
+        accommodation.setAvailabilities(Collections.emptyList());
         accommodationRepository.save(accommodation);
     }
 
@@ -55,7 +61,7 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
-    public void addCustomPrice(CustomPriceDto customPriceDto) {
+    public void addCustomPrice(Long id, CustomPriceDto customPriceDto) {
         if (customPriceDto.getPrice() <= 0) {
             throw new BadRequestException("Price is not valid.");
         }
@@ -64,7 +70,6 @@ public class AccommodationServiceImpl implements AccommodationService {
             throw new BadRequestException("End date is before start date.");
         }
 
-        Long id = customPriceDto.getAccommodationId();
         Accommodation a = accommodationRepository
                 .findById(id).orElseThrow(
                         () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
@@ -87,10 +92,142 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
-    public void deleteCustomPrice(Long id) {
+    public void updateCustomPrice(Long id, CustomPriceUpdateDto customPriceDto) {
+        CustomPrice cp = customPriceRepository
+                .findById(id).orElseThrow(
+                        () -> new BadRequestException(String.format("Custom price with id '%s' does not exist.", id)));
+
+        cp.setPrice(customPriceDto.getPrice());
+        customPriceRepository.save(cp);
+    }
+
+    @Override
+    public void deleteCustomPrice(Long id, Long idOfPrice) {
         Accommodation a = accommodationRepository
                 .findById(id).orElseThrow(
                         () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
-        accommodationRepository.delete(a);
+
+        Optional<CustomPrice> customPriceOptional = a.getCustomPrices().stream().filter(cp -> cp.getId().equals(idOfPrice)).findFirst();
+        if (customPriceOptional.isEmpty()) {
+            throw new BadRequestException(String.format("Custom rice with id '%s' does not exist on accommodation with id '%s'.", idOfPrice, id));
+        }
+
+        CustomPrice priceForDeletion = customPriceOptional.get();
+        a.getCustomPrices().remove(priceForDeletion);
+
+        accommodationRepository.save(a);
+        customPriceRepository.delete(priceForDeletion);
+    }
+
+    @Override
+    public boolean checkAvailability(Long id, AvailabilityDto availabilityDto) {
+        if (!availabilityDto.getStartDate().isBefore(availabilityDto.getEndDate())) {
+            throw new BadRequestException("End date is before start date.");
+        }
+
+        Accommodation accommodation = accommodationRepository
+                .findById(id).orElseThrow(
+                        () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
+
+        for (LocalDate date = availabilityDto.getStartDate(); date.isBefore(availabilityDto.getEndDate()); date = date.plusDays(1)) {
+            LocalDate currentDate = date;
+            List<Availability> availabilities = accommodation.getAvailabilities().stream().filter(
+                    currectAvailability -> currectAvailability.getStartDate().isAfter(currentDate)
+                            || currectAvailability.getEndDate().isBefore(currentDate)).toList();
+            if (availabilities.size() == accommodation.getAvailabilities().size()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void createAvailability(Long id, AvailabilityDto availabilityDto) {
+        if (!availabilityDto.getStartDate().isBefore(availabilityDto.getEndDate())) {
+            throw new BadRequestException("End date is before start date.");
+        }
+
+        Accommodation a = accommodationRepository
+                .findById(id).orElseThrow(
+                        () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
+
+        LocalDate startDate = availabilityDto.getStartDate();
+        LocalDate endDate = availabilityDto.getEndDate();
+
+        for (Availability availability : a.getAvailabilities()) {
+            if (!startDate.isAfter(availability.getStartDate()) && !endDate.isBefore(availability.getStartDate())) {
+                throw new BadRequestException("Range is not valid.");
+            }
+            if (!endDate.isBefore(availability.getEndDate()) && !startDate.isAfter(availability.getEndDate())) {
+                throw new BadRequestException("Range is not valid.");
+            }
+        }
+
+        Availability availability = modelMapper.map(availabilityDto, Availability.class);
+        a.getAvailabilities().add(availability);
+
+        accommodationRepository.save(a);
+    }
+
+    @Override
+    public void updateAvailability(Long id, AvailabilityUpdateDto availabilityDto) {
+
+        Availability a = availabilityRepository
+                .findById(id).orElseThrow(
+                        () -> new BadRequestException(String.format("Availability with id '%s' does not exist.", id)));
+
+        AvailabilityUpdateType type = availabilityDto.getType();
+        LocalDate newDate = availabilityDto.getNewDate();
+
+        if (type.equals(AvailabilityUpdateType.START_DATE)) {
+            if (!newDate.isBefore(a.getEndDate())) {
+                throw new BadRequestException("New date is not before end date.");
+            }
+        } else {
+            if (!newDate.isAfter(a.getStartDate())) {
+                throw new BadRequestException("New date is not after start date.");
+            }
+        }
+
+        LocalDate newStartDate;
+        LocalDate newEndDate;
+
+        if (type.equals(AvailabilityUpdateType.START_DATE)) {
+            newStartDate = newDate;
+            newEndDate = a.getEndDate();
+        } else {
+            newStartDate = a.getStartDate();
+            newEndDate = newDate;
+        }
+
+//      TODO: Contact reservation microservice and check do some reservation exist during this period on this accommodation
+        boolean reservationExistence = false;
+
+        if (reservationExistence) {
+            throw new BadRequestException("Availability cannot be updated duo to existence of reservation.");
+        }
+
+        a.setStartDate(newStartDate);
+        a.setEndDate(newEndDate);
+
+        availabilityRepository.save(a);
+    }
+
+    @Override
+    public void deleteAvailability(Long id, Long idOfAvailability) {
+        Accommodation a = accommodationRepository
+                .findById(id).orElseThrow(
+                        () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
+
+        Optional<Availability> availabilityOptional = a.getAvailabilities().stream().filter(av -> av.getId().equals(idOfAvailability)).findFirst();
+        if (availabilityOptional.isEmpty()) {
+            throw new BadRequestException(String.format("Availability with id '%s' does not exist on accommodation with id '%s'.", idOfAvailability, id));
+        }
+
+        Availability availabilityForDeletion = availabilityOptional.get();
+        a.getAvailabilities().remove(availabilityForDeletion);
+
+        accommodationRepository.save(a);
+        availabilityRepository.delete(availabilityForDeletion);
     }
 }
