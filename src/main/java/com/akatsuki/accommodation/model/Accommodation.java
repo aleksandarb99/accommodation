@@ -31,4 +31,6 @@ public class Accommodation {
     private int defaultPrice;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<CustomPrice> customPrices;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Availability> availabilities;
 }
