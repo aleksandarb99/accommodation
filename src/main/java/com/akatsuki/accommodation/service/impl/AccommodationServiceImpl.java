@@ -35,6 +35,11 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
+    public List<Accommodation> findPerHostAccommodations(Long hostId) {
+        return accommodationRepository.findByHostId(hostId);
+    }
+
+    @Override
     public List<SearchedAccommodationDto> searchAccommodations(String location, int numberOfGuests, LocalDate startDate, LocalDate endDate) {
         if (numberOfGuests <= 0) {
             throw new BadRequestException("Number of quests must be positive.");
@@ -60,6 +65,14 @@ public class AccommodationServiceImpl implements AccommodationService {
                         a, SearchedAccommodationDto.class)).toList();
         accommodationDtos.forEach(a -> a.setTotalPrice(calculateTotalCost(a, numberOfGuests, startDate, endDate)));
         return accommodationDtos;
+    }
+
+    @Override
+    public void deleteAccommodation(Long id) {
+        Accommodation a = accommodationRepository
+                .findById(id).orElseThrow(
+                        () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
+        accommodationRepository.delete(a);
     }
 
     private int calculateTotalCost(SearchedAccommodationDto accommodationDto, int numberOfGuests, LocalDate startDate, LocalDate endDate) {
@@ -170,8 +183,8 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
-    public boolean checkAvailability(Long id, AvailabilityDto availabilityDto) {
-        if (!availabilityDto.getStartDate().isBefore(availabilityDto.getEndDate())) {
+    public AvailabilityCheckResponseDto checkAvailability(Long id, AccommodationCheckDto dto) {
+        if (!dto.getStartDate().isBefore(dto.getEndDate())) {
             throw new BadRequestException("End date is before start date.");
         }
 
@@ -179,7 +192,18 @@ public class AccommodationServiceImpl implements AccommodationService {
                 .findById(id).orElseThrow(
                         () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
 
-        return checkAvailabilityForEveryDay(availabilityDto.getStartDate(), availabilityDto.getEndDate(), accommodation);
+        boolean available = checkAvailabilityForEveryDay(dto.getStartDate(), dto.getEndDate(), accommodation);
+        int totalCost = 0;
+        if (available) {
+            totalCost = calculateTotalCost(modelMapper.map(accommodation, SearchedAccommodationDto.class),
+                    dto.getNumberOfGuests(), dto.getStartDate(), dto.getEndDate());
+        }
+        return AvailabilityCheckResponseDto.builder()
+                .id(id)
+                .available(available)
+                .totalCost(totalCost)
+                .automaticApprove(accommodation.isAutomaticApprove())
+                .build();
     }
 
     private boolean checkAvailabilityForEveryDay(LocalDate startDate, LocalDate endDate, Accommodation accommodation) {

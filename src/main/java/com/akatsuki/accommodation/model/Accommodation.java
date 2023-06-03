@@ -20,6 +20,8 @@ public class Accommodation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private Long hostId;
+    private boolean automaticApprove;
     private String location;
     private List<String> photographs;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

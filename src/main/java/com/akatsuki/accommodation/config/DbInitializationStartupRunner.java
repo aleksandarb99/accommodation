@@ -1,5 +1,6 @@
 package com.akatsuki.accommodation.config;
 
+import com.akatsuki.accommodation.controller.AccommodationController;
 import com.akatsuki.accommodation.enums.PriceType;
 import com.akatsuki.accommodation.model.Accommodation;
 import com.akatsuki.accommodation.model.Availability;
@@ -27,7 +28,7 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
                 .startDate(LocalDate.of(2023, 6, 1))
                 .endDate(LocalDate.of(2023, 8, 1))
                 .build();
-        
+
         var cp1 = CustomPrice.builder()
                 .startDate(LocalDate.of(2023, 7, 1))
                 .endDate(LocalDate.of(2023, 8, 1))
@@ -56,6 +57,8 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
         var a1 = Accommodation.builder()
                 .name("Vila Jovanovic")
                 .location("Ulica Vladike Nikolaja 14, Beograd")
+                .hostId(AccommodationController.hostId)
+                .automaticApprove(true)
                 .minQuests(2)
                 .maxQuests(6)
                 .benefits(b1)
@@ -68,6 +71,8 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
         var a2 = Accommodation.builder()
                 .name("Vila Soko")
                 .location("Ulica Dalmatinska 15, Beograd")
+                .hostId(AccommodationController.hostId)
+                .automaticApprove(true)
                 .minQuests(1)
                 .maxQuests(4)
                 .benefits(b2)
@@ -80,6 +85,8 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
         var a3 = Accommodation.builder()
                 .name("Vila Milica")
                 .location("Ulica Kralja Aleksandra 20, Novi Sad")
+                .hostId(AccommodationController.hostId)
+                .automaticApprove(true)
                 .minQuests(3)
                 .maxQuests(6)
                 .maxQuests(6)
