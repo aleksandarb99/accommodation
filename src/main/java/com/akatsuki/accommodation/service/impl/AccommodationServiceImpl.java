@@ -2,6 +2,7 @@ package com.akatsuki.accommodation.service.impl;
 
 import com.akatsuki.accommodation.dto.*;
 import com.akatsuki.accommodation.enums.AvailabilityUpdateType;
+import com.akatsuki.accommodation.enums.PriceType;
 import com.akatsuki.accommodation.exception.BadRequestException;
 import com.akatsuki.accommodation.model.Accommodation;
 import com.akatsuki.accommodation.model.Availability;
@@ -29,8 +30,57 @@ public class AccommodationServiceImpl implements AccommodationService {
     private final ModelMapper modelMapper;
 
     @Override
-    public List<Accommodation> findAllAccommodations() {
+    public List<Accommodation> findAll() {
         return accommodationRepository.findAll();
+    }
+
+    @Override
+    public List<SearchedAccommodationDto> searchAccommodations(String location, int numberOfGuests, LocalDate startDate, LocalDate endDate) {
+        if (numberOfGuests <= 0) {
+            throw new BadRequestException("Number of quests must be positive.");
+        }
+        LocalDate now = LocalDate.now();
+        if (!startDate.isAfter(now) || !endDate.isAfter(now)) {
+            throw new BadRequestException("Dates must be in future.");
+        }
+
+        List<Accommodation> accommodations = accommodationRepository.findAll();
+
+        System.out.println(accommodations);
+
+        accommodations = accommodations.stream().filter(
+                a -> a.getLocation().toLowerCase().startsWith(location.toLowerCase())).toList();
+        accommodations = accommodations.stream().filter(
+                a -> a.getMinQuests() <= numberOfGuests && a.getMaxQuests() >= numberOfGuests).toList();
+        accommodations = accommodations.stream().filter(
+                a -> checkAvailabilityForEveryDay(startDate, endDate, a)).toList();
+
+        List<SearchedAccommodationDto> accommodationDtos = accommodations.stream().map(
+                a -> modelMapper.map(
+                        a, SearchedAccommodationDto.class)).toList();
+        accommodationDtos.forEach(a -> a.setTotalPrice(calculateTotalCost(a, numberOfGuests, startDate, endDate)));
+        return accommodationDtos;
+    }
+
+    private int calculateTotalCost(SearchedAccommodationDto accommodationDto, int numberOfGuests, LocalDate startDate, LocalDate endDate) {
+        int totalCost = 0;
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            totalCost += calculateCostForDate(accommodationDto, numberOfGuests, date);
+        }
+        return totalCost;
+    }
+
+    private int calculateCostForDate(SearchedAccommodationDto accommodationDto, int numberOfGuests, LocalDate date) {
+        int price = accommodationDto.getDefaultPrice();
+        for (CustomPrice cp : accommodationDto.getCustomPrices()) {
+            if (date.isAfter(cp.getStartDate()) && date.isBefore(cp.getEndDate())) {
+                price = cp.getPrice();
+            }
+        }
+        if (accommodationDto.getPriceType().equals(PriceType.PER_PERSON_PER_NIGHT)) {
+            price *= numberOfGuests;
+        }
+        return price;
     }
 
     @Override
@@ -129,7 +179,14 @@ public class AccommodationServiceImpl implements AccommodationService {
                 .findById(id).orElseThrow(
                         () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
 
-        for (LocalDate date = availabilityDto.getStartDate(); date.isBefore(availabilityDto.getEndDate()); date = date.plusDays(1)) {
+        return checkAvailabilityForEveryDay(availabilityDto.getStartDate(), availabilityDto.getEndDate(), accommodation);
+    }
+
+    private boolean checkAvailabilityForEveryDay(LocalDate startDate, LocalDate endDate, Accommodation accommodation) {
+        if (accommodation.getAvailabilities().isEmpty()) {
+            return false;
+        }
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             LocalDate currentDate = date;
             List<Availability> availabilities = accommodation.getAvailabilities().stream().filter(
                     currectAvailability -> currectAvailability.getStartDate().isAfter(currentDate)
@@ -230,4 +287,5 @@ public class AccommodationServiceImpl implements AccommodationService {
         accommodationRepository.save(a);
         availabilityRepository.delete(availabilityForDeletion);
     }
+
 }

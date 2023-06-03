@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -19,7 +20,13 @@ public class AccommodationController {
 
     @GetMapping
     public List<Accommodation> findAllAccommodations() {
-        return accommodationService.findAllAccommodations();
+        return accommodationService.findAll();
+    }
+
+    @GetMapping("/search")
+    public List<SearchedAccommodationDto> searchAccommodations(@RequestParam String location, @RequestParam(name = "number-of-guests") int numberOfGuests,
+                                                               @RequestParam(name = "start-date") LocalDate startDate, @RequestParam(name = "end-date") LocalDate endDate) {
+        return accommodationService.searchAccommodations(location, numberOfGuests, startDate, endDate);
     }
 
     @ResponseStatus(HttpStatus.CREATED)

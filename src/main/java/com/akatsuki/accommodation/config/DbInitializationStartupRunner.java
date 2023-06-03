@@ -25,7 +25,7 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         var av1 = Availability.builder()
                 .startDate(LocalDate.of(2023, 6, 1))
-                .endDate(LocalDate.of(2023, 7, 1))
+                .endDate(LocalDate.of(2023, 8, 1))
                 .build();
         
         var cp1 = CustomPrice.builder()
