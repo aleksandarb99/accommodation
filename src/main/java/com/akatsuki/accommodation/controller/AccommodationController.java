@@ -71,6 +71,7 @@ public class AccommodationController {
         accommodationService.deleteCustomPrice(id, idOfPrice);
     }
 
+    
     @GetMapping("/{id}/check-availability")
     public AvailabilityCheckResponseDto checkAccommodationAvailability(@PathVariable Long id, @Valid @RequestBody AccommodationCheckDto accommodationCheckDto) {
         return accommodationService.checkAvailability(id, accommodationCheckDto);
