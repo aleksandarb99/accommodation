@@ -50,9 +50,7 @@ public class AccommodationServiceImpl implements AccommodationService {
         }
 
         List<Accommodation> accommodations = accommodationRepository.findAll();
-
-        System.out.println(accommodations);
-
+        
         accommodations = accommodations.stream().filter(
                 a -> a.getLocation().toLowerCase().startsWith(location.toLowerCase())).toList();
         accommodations = accommodations.stream().filter(

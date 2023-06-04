@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccommodationController {
 
-    public static Long hostId = 123L;
+    public static final Long hostId = 123L;
 
     private final AccommodationService accommodationService;
 
@@ -71,7 +71,7 @@ public class AccommodationController {
         accommodationService.deleteCustomPrice(id, idOfPrice);
     }
 
-    
+
     @GetMapping("/{id}/check-availability")
     public AvailabilityCheckResponseDto checkAccommodationAvailability(@PathVariable Long id, @Valid @RequestBody AccommodationCheckDto accommodationCheckDto) {
         return accommodationService.checkAvailability(id, accommodationCheckDto);
