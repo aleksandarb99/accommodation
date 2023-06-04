@@ -10,5 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class AvailabilityCheckResponseDto {
-    boolean available;
+    private Long id;
+    private boolean available;
+    private int totalCost;
+    private boolean automaticApprove;
 }

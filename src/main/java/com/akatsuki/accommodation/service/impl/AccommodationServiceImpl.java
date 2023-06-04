@@ -2,6 +2,7 @@ package com.akatsuki.accommodation.service.impl;
 
 import com.akatsuki.accommodation.dto.*;
 import com.akatsuki.accommodation.enums.AvailabilityUpdateType;
+import com.akatsuki.accommodation.enums.PriceType;
 import com.akatsuki.accommodation.exception.BadRequestException;
 import com.akatsuki.accommodation.model.Accommodation;
 import com.akatsuki.accommodation.model.Availability;
@@ -29,8 +30,68 @@ public class AccommodationServiceImpl implements AccommodationService {
     private final ModelMapper modelMapper;
 
     @Override
-    public List<Accommodation> findAllAccommodations() {
+    public List<Accommodation> findAll() {
         return accommodationRepository.findAll();
+    }
+
+    @Override
+    public List<Accommodation> findPerHostAccommodations(Long hostId) {
+        return accommodationRepository.findByHostId(hostId);
+    }
+
+    @Override
+    public List<SearchedAccommodationDto> searchAccommodations(String location, int numberOfGuests, LocalDate startDate, LocalDate endDate) {
+        if (numberOfGuests <= 0) {
+            throw new BadRequestException("Number of quests must be positive.");
+        }
+        LocalDate now = LocalDate.now();
+        if (!startDate.isAfter(now) || !endDate.isAfter(now)) {
+            throw new BadRequestException("Dates must be in future.");
+        }
+
+        List<Accommodation> accommodations = accommodationRepository.findAll();
+        
+        accommodations = accommodations.stream().filter(
+                a -> a.getLocation().toLowerCase().startsWith(location.toLowerCase())).toList();
+        accommodations = accommodations.stream().filter(
+                a -> a.getMinQuests() <= numberOfGuests && a.getMaxQuests() >= numberOfGuests).toList();
+        accommodations = accommodations.stream().filter(
+                a -> checkAvailabilityForEveryDay(startDate, endDate, a)).toList();
+
+        List<SearchedAccommodationDto> accommodationDtos = accommodations.stream().map(
+                a -> modelMapper.map(
+                        a, SearchedAccommodationDto.class)).toList();
+        accommodationDtos.forEach(a -> a.setTotalPrice(calculateTotalCost(a, numberOfGuests, startDate, endDate)));
+        return accommodationDtos;
+    }
+
+    @Override
+    public void deleteAccommodation(Long id) {
+        Accommodation a = accommodationRepository
+                .findById(id).orElseThrow(
+                        () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
+        accommodationRepository.delete(a);
+    }
+
+    private int calculateTotalCost(SearchedAccommodationDto accommodationDto, int numberOfGuests, LocalDate startDate, LocalDate endDate) {
+        int totalCost = 0;
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            totalCost += calculateCostForDate(accommodationDto, numberOfGuests, date);
+        }
+        return totalCost;
+    }
+
+    private int calculateCostForDate(SearchedAccommodationDto accommodationDto, int numberOfGuests, LocalDate date) {
+        int price = accommodationDto.getDefaultPrice();
+        for (CustomPrice cp : accommodationDto.getCustomPrices()) {
+            if (date.isAfter(cp.getStartDate()) && date.isBefore(cp.getEndDate())) {
+                price = cp.getPrice();
+            }
+        }
+        if (accommodationDto.getPriceType().equals(PriceType.PER_PERSON_PER_NIGHT)) {
+            price *= numberOfGuests;
+        }
+        return price;
     }
 
     @Override
@@ -120,8 +181,8 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
-    public boolean checkAvailability(Long id, AvailabilityDto availabilityDto) {
-        if (!availabilityDto.getStartDate().isBefore(availabilityDto.getEndDate())) {
+    public AvailabilityCheckResponseDto checkAvailability(Long id, AccommodationCheckDto dto) {
+        if (!dto.getStartDate().isBefore(dto.getEndDate())) {
             throw new BadRequestException("End date is before start date.");
         }
 
@@ -129,7 +190,25 @@ public class AccommodationServiceImpl implements AccommodationService {
                 .findById(id).orElseThrow(
                         () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
 
-        for (LocalDate date = availabilityDto.getStartDate(); date.isBefore(availabilityDto.getEndDate()); date = date.plusDays(1)) {
+        boolean available = checkAvailabilityForEveryDay(dto.getStartDate(), dto.getEndDate(), accommodation);
+        int totalCost = 0;
+        if (available) {
+            totalCost = calculateTotalCost(modelMapper.map(accommodation, SearchedAccommodationDto.class),
+                    dto.getNumberOfGuests(), dto.getStartDate(), dto.getEndDate());
+        }
+        return AvailabilityCheckResponseDto.builder()
+                .id(id)
+                .available(available)
+                .totalCost(totalCost)
+                .automaticApprove(accommodation.isAutomaticApprove())
+                .build();
+    }
+
+    private boolean checkAvailabilityForEveryDay(LocalDate startDate, LocalDate endDate, Accommodation accommodation) {
+        if (accommodation.getAvailabilities().isEmpty()) {
+            return false;
+        }
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             LocalDate currentDate = date;
             List<Availability> availabilities = accommodation.getAvailabilities().stream().filter(
                     currectAvailability -> currectAvailability.getStartDate().isAfter(currentDate)
@@ -230,4 +309,5 @@ public class AccommodationServiceImpl implements AccommodationService {
         accommodationRepository.save(a);
         availabilityRepository.delete(availabilityForDeletion);
     }
+
 }

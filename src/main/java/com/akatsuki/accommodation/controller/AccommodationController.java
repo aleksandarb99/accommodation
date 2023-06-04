@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -15,11 +16,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccommodationController {
 
+    public static final Long hostId = 123L;
+
     private final AccommodationService accommodationService;
 
     @GetMapping
     public List<Accommodation> findAllAccommodations() {
-        return accommodationService.findAllAccommodations();
+        return accommodationService.findAll();
+    }
+
+    @GetMapping("/per-host")
+    public List<Accommodation> findPerHostAccommodations() {
+        return accommodationService.findPerHostAccommodations(hostId);
+    }
+
+    @GetMapping("/search")
+    public List<SearchedAccommodationDto> searchAccommodations(@RequestParam String location, @RequestParam(name = "number-of-guests") int numberOfGuests,
+                                                               @RequestParam(name = "start-date") LocalDate startDate, @RequestParam(name = "end-date") LocalDate endDate) {
+        return accommodationService.searchAccommodations(location, numberOfGuests, startDate, endDate);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -31,6 +45,12 @@ public class AccommodationController {
     @PutMapping("/{id}/default-price/{price}")
     public void updateDefaultPrice(@PathVariable Long id, @PathVariable int price) {
         accommodationService.updateDefaultPrice(id, price);
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{id}")
+    public void deleteAccommodation(@PathVariable Long id) {
+        accommodationService.deleteAccommodation(id);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -51,10 +71,10 @@ public class AccommodationController {
         accommodationService.deleteCustomPrice(id, idOfPrice);
     }
 
-    @GetMapping("/{id}/availability")
-    public AvailabilityCheckResponseDto checkAvailability(@PathVariable Long id, @Valid @RequestBody AvailabilityDto availabilityDto) {
-        boolean available = accommodationService.checkAvailability(id, availabilityDto);
-        return new AvailabilityCheckResponseDto(available);
+
+    @GetMapping("/{id}/check-availability")
+    public AvailabilityCheckResponseDto checkAccommodationAvailability(@PathVariable Long id, @Valid @RequestBody AccommodationCheckDto accommodationCheckDto) {
+        return accommodationService.checkAvailability(id, accommodationCheckDto);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
