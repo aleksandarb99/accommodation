@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/accommodation")
+@RequestMapping("/api/v1/accommodation")
 @RequiredArgsConstructor
 public class AccommodationController {
 
@@ -72,7 +72,7 @@ public class AccommodationController {
     }
 
 
-    @GetMapping("/{id}/check-availability")
+    @PostMapping("/{id}/check-availability")
     public AvailabilityCheckResponseDto checkAccommodationAvailability(@PathVariable Long id, @Valid @RequestBody AccommodationCheckDto accommodationCheckDto) {
         return accommodationService.checkAvailability(id, accommodationCheckDto);
     }

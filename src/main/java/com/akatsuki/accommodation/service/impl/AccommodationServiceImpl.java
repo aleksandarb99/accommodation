@@ -4,6 +4,7 @@ import com.akatsuki.accommodation.dto.*;
 import com.akatsuki.accommodation.enums.AvailabilityUpdateType;
 import com.akatsuki.accommodation.enums.PriceType;
 import com.akatsuki.accommodation.exception.BadRequestException;
+import com.akatsuki.accommodation.feignclients.ReservationFeignClient;
 import com.akatsuki.accommodation.model.Accommodation;
 import com.akatsuki.accommodation.model.Availability;
 import com.akatsuki.accommodation.model.CustomPrice;
@@ -28,6 +29,7 @@ public class AccommodationServiceImpl implements AccommodationService {
     private final CustomPriceRepository customPriceRepository;
     private final AvailabilityRepository availabilityRepository;
     private final ModelMapper modelMapper;
+    private final ReservationFeignClient reservationFeignClient;
 
     @Override
     public List<Accommodation> findAll() {
@@ -279,8 +281,13 @@ public class AccommodationServiceImpl implements AccommodationService {
             newEndDate = newDate;
         }
 
-//      TODO: Contact reservation microservice and check do some reservation exist during this period on this accommodation
-        boolean reservationExistence = false;
+        AccommodationInfoDTO accommodationInfoDTO = AccommodationInfoDTO.builder()
+                .accommodationId(id)
+                .startDate(newStartDate)
+                .endDate(newEndDate)
+                .build();
+
+        boolean reservationExistence = reservationFeignClient.checkReservationsOfAccommodation(accommodationInfoDTO);
 
         if (reservationExistence) {
             throw new BadRequestException("Availability cannot be updated duo to existence of reservation.");
