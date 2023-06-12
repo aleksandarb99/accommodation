@@ -37,8 +37,8 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
-    public List<Accommodation> findPerHostAccommodations(Long hostId) {
-        return accommodationRepository.findByHostId(hostId);
+    public List<AccommodationBasicsDto> findPerHostAccommodations(Long hostId) {
+        return accommodationRepository.findByHostId(hostId).stream().map(a -> modelMapper.map(a, AccommodationBasicsDto.class)).toList();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class AccommodationServiceImpl implements AccommodationService {
         }
 
         List<Accommodation> accommodations = accommodationRepository.findAll();
-        
+
         accommodations = accommodations.stream().filter(
                 a -> a.getLocation().toLowerCase().startsWith(location.toLowerCase())).toList();
         accommodations = accommodations.stream().filter(
@@ -73,6 +73,12 @@ public class AccommodationServiceImpl implements AccommodationService {
                 .findById(id).orElseThrow(
                         () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
         accommodationRepository.delete(a);
+    }
+
+    @Override
+    public void deleteByHostId(Long id) {
+        List<Accommodation> accommodations = accommodationRepository.findByHostId(id);
+        accommodationRepository.deleteAll(accommodations);
     }
 
     private int calculateTotalCost(SearchedAccommodationDto accommodationDto, int numberOfGuests, LocalDate startDate, LocalDate endDate) {

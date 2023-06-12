@@ -25,9 +25,9 @@ public class AccommodationController {
         return accommodationService.findAll();
     }
 
-    @GetMapping("/per-host")
-    public List<Accommodation> findPerHostAccommodations() {
-        return accommodationService.findPerHostAccommodations(hostId);
+    @GetMapping("/per-host/{id}")
+    public List<AccommodationBasicsDto> findPerHostAccommodations(@PathVariable Long id) {
+        return accommodationService.findPerHostAccommodations(id);
     }
 
     @GetMapping("/search")
@@ -51,6 +51,12 @@ public class AccommodationController {
     @DeleteMapping("/{id}")
     public void deleteAccommodation(@PathVariable Long id) {
         accommodationService.deleteAccommodation(id);
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/by-host-id/{id}")
+    public void deleteByHostId(@PathVariable Long id) {
+        accommodationService.deleteByHostId(id);
     }
 
     @ResponseStatus(HttpStatus.CREATED)

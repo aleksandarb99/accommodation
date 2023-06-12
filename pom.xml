@@ -21,6 +21,7 @@
         <spring-cloud.version>2022.0.3</spring-cloud.version>
         <sonar.organization>aleksandarb99</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <openfeign.version>4.0.3</openfeign.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -28,13 +29,6 @@
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers-bom</artifactId>
                 <version>${testcontainers.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -61,6 +55,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <version>${openfeign.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

@@ -10,7 +10,7 @@ public interface AccommodationService {
 
     List<Accommodation> findAll();
 
-    List<Accommodation> findPerHostAccommodations(Long hostId);
+    List<AccommodationBasicsDto> findPerHostAccommodations(Long hostId);
 
     List<SearchedAccommodationDto> searchAccommodations(String location, int numberOfGuests, LocalDate startDate, LocalDate endDate);
 
@@ -33,4 +33,6 @@ public interface AccommodationService {
     void updateCustomPrice(Long id, CustomPriceUpdateDto customPriceDto);
 
     void deleteAccommodation(Long id);
+
+    void deleteByHostId(Long id);
 }
