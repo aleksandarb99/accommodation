@@ -21,6 +21,8 @@
         <spring-cloud.version>2022.0.3</spring-cloud.version>
         <sonar.organization>aleksandarb99</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <resource-server.version>6.1.0</resource-server.version>
+        <jose.version>6.1.0</jose.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -44,6 +46,20 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+            <version>${jose.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-resource-server</artifactId>
+            <version>${resource-server.version}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
