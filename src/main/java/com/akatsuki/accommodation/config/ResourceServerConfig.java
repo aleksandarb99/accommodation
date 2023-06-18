@@ -16,6 +16,8 @@ public class ResourceServerConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuer;
 
+    //    TODO: Check ROLES
+    //    TODO: Write code for resource server in another microservice
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
