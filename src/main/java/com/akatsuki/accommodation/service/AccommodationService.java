@@ -5,10 +5,12 @@ import com.akatsuki.accommodation.model.Accommodation;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface AccommodationService {
 
     List<Accommodation> findAll();
+    Optional<Accommodation> getAccommodation(Long accommodationId);
 
     List<Accommodation> findPerHostAccommodations(Long hostId);
 

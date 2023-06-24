@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/accommodation")
@@ -23,6 +24,11 @@ public class AccommodationController {
     @GetMapping
     public List<Accommodation> findAllAccommodations() {
         return accommodationService.findAll();
+    }
+
+    @GetMapping("/id")
+    public Optional<Accommodation> getAccommodation(@RequestParam Long id) {
+        return accommodationService.getAccommodation(id);
     }
 
     @GetMapping("/per-host")
