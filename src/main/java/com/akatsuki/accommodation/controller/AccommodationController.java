@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/accommodation")
@@ -24,6 +25,12 @@ public class AccommodationController {
 //    public List<Accommodation> findAllAccommodations() {
 //        return accommodationService.findAll();
 //    }
+
+    //    TODO: This should return dto
+    @GetMapping("/id")
+    public Optional<Accommodation> getAccommodation(@RequestParam Long id) {
+        return accommodationService.getAccommodation(id);
+    }
 
     @GetMapping("/per-host")
     public List<Accommodation> findPerHostAccommodations(@RequestHeader("Authorization") final String token) {
