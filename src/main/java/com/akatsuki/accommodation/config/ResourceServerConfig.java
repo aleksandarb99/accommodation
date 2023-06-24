@@ -15,8 +15,13 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@Profile(value = "!test")
 public class ResourceServerConfig {
+
+    @Bean
+    @Profile("test")
+    public JwtDecoder jwtDecoder2() {
+        return null;
+    }
 
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuer;
