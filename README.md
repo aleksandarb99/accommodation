@@ -7,5 +7,5 @@
 ## Build this image locally
 
 ```shell
-docker build -t aleksandarb99/accommodation:latest 
+docker build . -t aleksandarb99/accommodation:latest 
 ```

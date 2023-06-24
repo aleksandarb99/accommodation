@@ -23,6 +23,7 @@ public class ResourceServerConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/accommodation/per-host").hasRole("HOST")
                         .requestMatchers(HttpMethod.POST, "/api/v1/accommodation").hasRole("HOST")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/accommodation/{id}/default-price/{price}").hasRole("HOST")
@@ -34,6 +35,8 @@ public class ResourceServerConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/accommodation/{id}/availability").hasRole("HOST")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/accommodation/availability/{id}").hasRole("HOST")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/accommodation/{id}/availability/{idOfAvailability").hasRole("HOST")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/accommodation").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/accommodation/{id}").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
