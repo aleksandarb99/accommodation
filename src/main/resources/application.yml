@@ -1,0 +1,22 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+      show-sql: false
+    open-in-view: false
+  datasource:
+    url: jdbc:postgresql://${DATABASE_DOMAIN:localhost}:${DATABASE_PORT:5432}/${DATABASE_SCHEMA:accommodation-db}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:admin}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          #          issuer-uri: http://localhost:9000
+          issuer-uri: ${AUTH_URL:http://localhost:9000}
+core:
+  services:
+    reservation-url: ${RESERVATION_URL:http://localhost:8081/api/v1/reservation}

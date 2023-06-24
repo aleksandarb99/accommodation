@@ -6,6 +6,7 @@ import com.akatsuki.accommodation.service.AccommodationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -16,17 +17,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccommodationController {
 
-    public static final Long hostId = 123L;
-
     private final AccommodationService accommodationService;
+    private final JwtDecoder jwtDecoder;
 
-    @GetMapping
-    public List<Accommodation> findAllAccommodations() {
-        return accommodationService.findAll();
-    }
+//    @GetMapping
+//    public List<Accommodation> findAllAccommodations() {
+//        return accommodationService.findAll();
+//    }
 
     @GetMapping("/per-host")
-    public List<Accommodation> findPerHostAccommodations() {
+    public List<Accommodation> findPerHostAccommodations(@RequestHeader("Authorization") final String token) {
+        Long hostId = getIdFromToken(token);
         return accommodationService.findPerHostAccommodations(hostId);
     }
 
@@ -38,8 +39,9 @@ public class AccommodationController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public void createAccommodation(@Valid @RequestBody AccommodationDto accommodationDto) {
-        accommodationService.createAccommodation(accommodationDto);
+    public void createAccommodation(@Valid @RequestBody AccommodationDto accommodationDto, @RequestHeader("Authorization") final String token) {
+        Long hostId = getIdFromToken(token);
+        accommodationService.createAccommodation(accommodationDto, hostId);
     }
 
     @PutMapping("/{id}/default-price/{price}")
@@ -71,7 +73,6 @@ public class AccommodationController {
         accommodationService.deleteCustomPrice(id, idOfPrice);
     }
 
-
     @PostMapping("/{id}/check-availability")
     public AvailabilityCheckResponseDto checkAccommodationAvailability(@PathVariable Long id, @Valid @RequestBody AccommodationCheckDto accommodationCheckDto) {
         return accommodationService.checkAvailability(id, accommodationCheckDto);
@@ -84,14 +85,18 @@ public class AccommodationController {
     }
 
     @PutMapping("/availability/{id}")
-    public void updateAvailability(@PathVariable Long id, @Valid @RequestBody AvailabilityUpdateDto availabilityDto) {
-        accommodationService.updateAvailability(id, availabilityDto);
+    public void updateAvailability(@PathVariable Long id, @Valid @RequestBody AvailabilityUpdateDto availabilityDto, @RequestHeader("Authorization") final String token) {
+        accommodationService.updateAvailability(id, availabilityDto, token);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}/availability/{idOfAvailability}")
     public void deleteAvailability(@PathVariable Long id, @PathVariable Long idOfAvailability) {
         accommodationService.deleteAvailability(id, idOfAvailability);
+    }
+
+    private Long getIdFromToken(String token) {
+        return (Long) jwtDecoder.decode(token.split(" ")[1]).getClaims().get("id");
     }
 
 }
