@@ -15,10 +15,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://127.0.0.1:9000
-logging:
-  level:
-    org.springframework.security: trace
+          #          issuer-uri: http://localhost:9000
+          issuer-uri: ${AUTH_URL:http://localhost:9000}
 core:
   services:
     reservation-url: ${RESERVATION_URL:http://localhost:8081/api/v1/reservation}

@@ -1,6 +1,5 @@
 package com.akatsuki.accommodation.config;
 
-import com.akatsuki.accommodation.controller.AccommodationController;
 import com.akatsuki.accommodation.enums.PriceType;
 import com.akatsuki.accommodation.model.Accommodation;
 import com.akatsuki.accommodation.model.Availability;
@@ -57,7 +56,7 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
         var a1 = Accommodation.builder()
                 .name("Vila Jovanovic")
                 .location("Ulica Vladike Nikolaja 14, Beograd")
-                .hostId(AccommodationController.hostId)
+                .hostId(1L)
                 .automaticApprove(true)
                 .minQuests(2)
                 .maxQuests(6)
@@ -71,7 +70,7 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
         var a2 = Accommodation.builder()
                 .name("Vila Soko")
                 .location("Ulica Dalmatinska 15, Beograd")
-                .hostId(AccommodationController.hostId)
+                .hostId(1L)
                 .automaticApprove(true)
                 .minQuests(1)
                 .maxQuests(4)
@@ -85,7 +84,7 @@ public class DbInitializationStartupRunner implements ApplicationRunner {
         var a3 = Accommodation.builder()
                 .name("Vila Milica")
                 .location("Ulica Kralja Aleksandra 20, Novi Sad")
-                .hostId(AccommodationController.hostId)
+                .hostId(2L)
                 .automaticApprove(true)
                 .minQuests(3)
                 .maxQuests(6)

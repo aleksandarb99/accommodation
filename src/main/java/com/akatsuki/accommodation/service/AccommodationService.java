@@ -14,7 +14,7 @@ public interface AccommodationService {
 
     List<SearchedAccommodationDto> searchAccommodations(String location, int numberOfGuests, LocalDate startDate, LocalDate endDate);
 
-    void createAccommodation(AccommodationDto accommodationDto);
+    void createAccommodation(AccommodationDto accommodationDto, Long hostId);
 
     void updateDefaultPrice(Long id, int price);
 
@@ -28,7 +28,7 @@ public interface AccommodationService {
 
     AvailabilityCheckResponseDto checkAvailability(Long id, AccommodationCheckDto accommodationCheckDto);
 
-    void updateAvailability(Long id, AvailabilityUpdateDto availabilityDto);
+    void updateAvailability(Long id, AvailabilityUpdateDto availabilityDto, String token);
 
     void updateCustomPrice(Long id, CustomPriceUpdateDto customPriceDto);
 
