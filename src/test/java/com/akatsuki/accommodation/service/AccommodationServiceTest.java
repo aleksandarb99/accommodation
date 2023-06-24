@@ -30,18 +30,20 @@ class AccommodationServiceTest {
     @Test
     void createAccommodationTestRuntimeException() {
         // Given
+        Long hostId = 123L;
         AccommodationDto accommodationDto = new AccommodationDto();
         Optional<Accommodation> optionalAccommodation = Optional.of(new Accommodation());
 
         when(accommodationRepositoryMock.findByName(any())).thenReturn(optionalAccommodation);
 
         // When - Then
-        Assertions.assertThrows(BadRequestException.class, () -> accommodationService.createAccommodation(accommodationDto));
+        Assertions.assertThrows(BadRequestException.class, () -> accommodationService.createAccommodation(accommodationDto, hostId));
     }
 
     @Test
     void createAccommodationTest() {
         // Given
+        Long hostId = 123L;
         AccommodationDto accommodationDto = new AccommodationDto();
         Accommodation accommodation = new Accommodation();
 
@@ -49,7 +51,7 @@ class AccommodationServiceTest {
         when(modelMapperMock.map(any(AccommodationDto.class), eq(Accommodation.class))).thenReturn(accommodation);
 
         // When
-        accommodationService.createAccommodation(accommodationDto);
+        accommodationService.createAccommodation(accommodationDto, hostId);
 
         // Then
         verify(accommodationRepositoryMock, times(1)).save(any(Accommodation.class));

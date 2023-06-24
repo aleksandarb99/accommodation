@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -30,6 +32,9 @@ class AccommodationServiceIntegrationTest {
         registry.add("spring.datasource.password", db::getPassword);
     }
 
+    @MockBean
+    private JwtDecoder jwtDecoder;
+
     @Autowired
     private AccommodationService accommodationService;
 
@@ -39,16 +44,18 @@ class AccommodationServiceIntegrationTest {
     @Test
     void createAccommodationTestRuntimeException() {
         // Given
+        Long hostId = 123L;
         AccommodationDto accommodationDto = new AccommodationDto();
         accommodationDto.setName("Vila Jovanovic");
 
         // When - Then
-        Assertions.assertThrows(BadRequestException.class, () -> accommodationService.createAccommodation(accommodationDto));
+        Assertions.assertThrows(BadRequestException.class, () -> accommodationService.createAccommodation(accommodationDto, hostId));
     }
 
     @Test
     void createAccommodationTest() {
         // Given
+        Long hostId = 123L;
         BenefitsDto benefitsDto = BenefitsDto.builder()
                 .ac(true)
                 .freeParkingSpace(false)
@@ -65,7 +72,7 @@ class AccommodationServiceIntegrationTest {
                 .build();
 
         // When
-        accommodationService.createAccommodation(accommodationDto);
+        accommodationService.createAccommodation(accommodationDto, hostId);
 
         // Then
         Assertions.assertEquals(4, accommodationRepository.count());

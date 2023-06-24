@@ -57,7 +57,7 @@ public class AccommodationServiceImpl implements AccommodationService {
         }
 
         List<Accommodation> accommodations = accommodationRepository.findAll();
-        
+
         accommodations = accommodations.stream().filter(
                 a -> a.getLocation().toLowerCase().startsWith(location.toLowerCase())).toList();
         accommodations = accommodations.stream().filter(
@@ -102,13 +102,14 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
-    public void createAccommodation(AccommodationDto accommodationDto) {
+    public void createAccommodation(AccommodationDto accommodationDto, Long hostId) {
         Optional<Accommodation> optionalAccommodation = accommodationRepository
                 .findByName(accommodationDto.getName());
         if (optionalAccommodation.isPresent()) {
             throw new BadRequestException(String.format("Name '%s' is already in use.", accommodationDto.getName()));
         }
         Accommodation accommodation = modelMapper.map(accommodationDto, Accommodation.class);
+        accommodation.setHostId(hostId);
         accommodation.setCustomPrices(Collections.emptyList());
         accommodation.setAvailabilities(Collections.emptyList());
         accommodationRepository.save(accommodation);
@@ -256,7 +257,7 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
-    public void updateAvailability(Long id, AvailabilityUpdateDto availabilityDto) {
+    public void updateAvailability(Long id, AvailabilityUpdateDto availabilityDto, String token) {
 
         Availability a = availabilityRepository
                 .findById(id).orElseThrow(
@@ -292,7 +293,7 @@ public class AccommodationServiceImpl implements AccommodationService {
                 .endDate(newEndDate)
                 .build();
 
-        boolean reservationExistence = reservationFeignClient.checkReservationsOfAccommodation(accommodationInfoDTO);
+        boolean reservationExistence = reservationFeignClient.checkReservationsOfAccommodation(accommodationInfoDTO, token);
 
         if (reservationExistence) {
             throw new BadRequestException("Availability cannot be updated duo to existence of reservation.");
