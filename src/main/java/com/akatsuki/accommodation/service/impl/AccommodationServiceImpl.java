@@ -80,6 +80,12 @@ public class AccommodationServiceImpl implements AccommodationService {
         accommodationRepository.delete(a);
     }
 
+    @Override
+    public void deleteByHostId(Long hostId) {
+        List<Accommodation> accommodations = findPerHostAccommodations(hostId);
+        accommodationRepository.deleteAll(accommodations);
+    }
+
     private int calculateTotalCost(SearchedAccommodationDto accommodationDto, int numberOfGuests, LocalDate startDate, LocalDate endDate) {
         int totalCost = 0;
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {

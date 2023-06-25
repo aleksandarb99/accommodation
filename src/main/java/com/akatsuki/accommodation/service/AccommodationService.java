@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface AccommodationService {
 
     List<Accommodation> findAll();
+
     Optional<Accommodation> getAccommodation(Long accommodationId);
 
     List<Accommodation> findPerHostAccommodations(Long hostId);
@@ -35,4 +36,6 @@ public interface AccommodationService {
     void updateCustomPrice(Long id, CustomPriceUpdateDto customPriceDto);
 
     void deleteAccommodation(Long id);
+
+    void deleteByHostId(Long hostId);
 }

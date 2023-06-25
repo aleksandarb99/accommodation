@@ -64,6 +64,14 @@ public class AccommodationController {
         accommodationService.deleteAccommodation(id);
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/by-host-id")
+    public void deleteByHostId(@RequestHeader("Authorization") final String token) {
+        Long hostId = getIdFromToken(token);
+        accommodationService.deleteByHostId(hostId);
+    }
+
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{id}/custom-price")
     public void addCustomPrice(@PathVariable Long id, @Valid @RequestBody CustomPriceDto customPriceDto) {
