@@ -23,6 +23,8 @@ public class Accommodation {
     private Long hostId;
     private boolean automaticApprove;
     private String location;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(columnDefinition = "TEXT")
     private List<String> photographs;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Benefits benefits;
