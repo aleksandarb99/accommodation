@@ -47,6 +47,18 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
+    public List<Availability> getAccommodationAvailability(Long id) {
+        Accommodation accommodation = accommodationRepository.findById(id).orElseThrow(() -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
+        return accommodation.getAvailabilities();
+    }
+
+    @Override
+    public List<CustomPrice> getAccommodationCustomPrice(Long id) {
+        Accommodation accommodation = accommodationRepository.findById(id).orElseThrow(() -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
+        return accommodation.getCustomPrices();
+    }
+
+    @Override
     public List<SearchedAccommodationDto> searchAccommodations(String location, int numberOfGuests, LocalDate startDate, LocalDate endDate) {
         if (numberOfGuests <= 0) {
             throw new BadRequestException("Number of quests must be positive.");
@@ -263,11 +275,19 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
-    public void updateAvailability(Long id, AvailabilityUpdateDto availabilityDto, String token) {
+    public void updateAvailability(Long id, Long idOfAvailability, AvailabilityUpdateDto availabilityDto, String token) {
+
+        Accommodation accommodation = accommodationRepository
+                .findById(id).orElseThrow(
+                        () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
 
         Availability a = availabilityRepository
-                .findById(id).orElseThrow(
+                .findById(idOfAvailability).orElseThrow(
                         () -> new BadRequestException(String.format("Availability with id '%s' does not exist.", id)));
+
+        if (!accommodation.getAvailabilities().contains(a)) {
+            throw new BadRequestException("Not valid availability.");
+        }
 
         AvailabilityUpdateType type = availabilityDto.getType();
         LocalDate newDate = availabilityDto.getNewDate();
@@ -281,6 +301,7 @@ public class AccommodationServiceImpl implements AccommodationService {
                 throw new BadRequestException("New date is not after start date.");
             }
         }
+
 
         LocalDate newStartDate;
         LocalDate newEndDate;

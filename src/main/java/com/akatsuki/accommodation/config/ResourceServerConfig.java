@@ -19,6 +19,7 @@ public class ResourceServerConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuer;
 
+    //    TODO: Check all endpoints in every backend
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -33,8 +34,8 @@ public class ResourceServerConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/accommodation/{id}/custom-price/{idOfPrice}").hasRole("HOST")
                         .requestMatchers(HttpMethod.POST, "/api/v1/accommodation/{id}/check-availability").hasRole("GUEST")
                         .requestMatchers(HttpMethod.POST, "/api/v1/accommodation/{id}/availability").hasRole("HOST")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/accommodation/availability/{id}").hasRole("HOST")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/accommodation/{id}/availability/{idOfAvailability").hasRole("HOST")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/accommodation/{id}/availability/{idOfAvailability}").hasRole("HOST")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/accommodation/{id}/availability/{idOfAvailability}").hasRole("HOST")
                         .requestMatchers(HttpMethod.GET, "/api/v1/accommodation").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/accommodation/{id}").permitAll()
                         .anyRequest().authenticated()

@@ -2,6 +2,8 @@ package com.akatsuki.accommodation.service;
 
 import com.akatsuki.accommodation.dto.*;
 import com.akatsuki.accommodation.model.Accommodation;
+import com.akatsuki.accommodation.model.Availability;
+import com.akatsuki.accommodation.model.CustomPrice;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,6 +19,10 @@ public interface AccommodationService {
 
     List<SearchedAccommodationDto> searchAccommodations(String location, int numberOfGuests, LocalDate startDate, LocalDate endDate);
 
+    List<CustomPrice> getAccommodationCustomPrice(Long id);
+
+    List<Availability> getAccommodationAvailability(Long id);
+
     void createAccommodation(AccommodationDto accommodationDto, Long hostId);
 
     void updateDefaultPrice(Long id, int price);
@@ -31,7 +37,7 @@ public interface AccommodationService {
 
     AvailabilityCheckResponseDto checkAvailability(Long id, AccommodationCheckDto accommodationCheckDto);
 
-    void updateAvailability(Long id, AvailabilityUpdateDto availabilityDto, String token);
+    void updateAvailability(Long id, Long idOfAvailability, AvailabilityUpdateDto availabilityDto, String token);
 
     void updateCustomPrice(Long id, CustomPriceUpdateDto customPriceDto);
 
