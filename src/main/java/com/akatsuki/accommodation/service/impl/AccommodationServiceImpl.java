@@ -24,7 +24,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class AccommodationServiceImpl implements AccommodationService {
-
     private final AccommodationRepository accommodationRepository;
     private final CustomPriceRepository customPriceRepository;
     private final AvailabilityRepository availabilityRepository;
@@ -37,13 +36,25 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
-    public Optional<Accommodation> getAccommodation(Long accommodationId) {
-        return accommodationRepository.findById(accommodationId);
+    public Accommodation getAccommodation(Long id) {
+        return accommodationRepository.findById(id).orElseThrow(() -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
     }
 
     @Override
     public List<Accommodation> findPerHostAccommodations(Long hostId) {
         return accommodationRepository.findByHostId(hostId);
+    }
+
+    @Override
+    public List<Availability> getAccommodationAvailability(Long id) {
+        Accommodation accommodation = accommodationRepository.findById(id).orElseThrow(() -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
+        return accommodation.getAvailabilities();
+    }
+
+    @Override
+    public List<CustomPrice> getAccommodationCustomPrice(Long id) {
+        Accommodation accommodation = accommodationRepository.findById(id).orElseThrow(() -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
+        return accommodation.getCustomPrices();
     }
 
     @Override
@@ -78,6 +89,12 @@ public class AccommodationServiceImpl implements AccommodationService {
                 .findById(id).orElseThrow(
                         () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
         accommodationRepository.delete(a);
+    }
+
+    @Override
+    public void deleteByHostId(Long hostId) {
+        List<Accommodation> accommodations = findPerHostAccommodations(hostId);
+        accommodationRepository.deleteAll(accommodations);
     }
 
     private int calculateTotalCost(SearchedAccommodationDto accommodationDto, int numberOfGuests, LocalDate startDate, LocalDate endDate) {
@@ -206,6 +223,7 @@ public class AccommodationServiceImpl implements AccommodationService {
         }
         return AvailabilityCheckResponseDto.builder()
                 .id(id)
+                .hostId(accommodation.getHostId())
                 .available(available)
                 .totalCost(totalCost)
                 .automaticApprove(accommodation.isAutomaticApprove())
@@ -257,11 +275,19 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
-    public void updateAvailability(Long id, AvailabilityUpdateDto availabilityDto, String token) {
+    public void updateAvailability(Long id, Long idOfAvailability, AvailabilityUpdateDto availabilityDto, String token) {
+
+        Accommodation accommodation = accommodationRepository
+                .findById(id).orElseThrow(
+                        () -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
 
         Availability a = availabilityRepository
-                .findById(id).orElseThrow(
+                .findById(idOfAvailability).orElseThrow(
                         () -> new BadRequestException(String.format("Availability with id '%s' does not exist.", id)));
+
+        if (!accommodation.getAvailabilities().contains(a)) {
+            throw new BadRequestException("Not valid availability.");
+        }
 
         AvailabilityUpdateType type = availabilityDto.getType();
         LocalDate newDate = availabilityDto.getNewDate();
@@ -276,6 +302,7 @@ public class AccommodationServiceImpl implements AccommodationService {
             }
         }
 
+
         LocalDate newStartDate;
         LocalDate newEndDate;
 
@@ -287,13 +314,7 @@ public class AccommodationServiceImpl implements AccommodationService {
             newEndDate = newDate;
         }
 
-        AccommodationInfoDTO accommodationInfoDTO = AccommodationInfoDTO.builder()
-                .accommodationId(id)
-                .startDate(newStartDate)
-                .endDate(newEndDate)
-                .build();
-
-        boolean reservationExistence = reservationFeignClient.checkReservationsOfAccommodation(accommodationInfoDTO, token);
+        boolean reservationExistence = reservationFeignClient.checkReservationsOfAccommodation(id, newStartDate, newEndDate, token);
 
         if (reservationExistence) {
             throw new BadRequestException("Availability cannot be updated duo to existence of reservation.");

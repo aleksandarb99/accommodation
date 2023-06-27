@@ -2,6 +2,8 @@ package com.akatsuki.accommodation.controller;
 
 import com.akatsuki.accommodation.dto.*;
 import com.akatsuki.accommodation.model.Accommodation;
+import com.akatsuki.accommodation.model.Availability;
+import com.akatsuki.accommodation.model.CustomPrice;
 import com.akatsuki.accommodation.service.AccommodationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,16 +23,24 @@ public class AccommodationController {
     private final AccommodationService accommodationService;
     private final JwtDecoder jwtDecoder;
 
-    //    TODO: This should return dto
     @GetMapping
     public List<Accommodation> findAllAccommodations() {
         return accommodationService.findAll();
     }
 
-    //    TODO: This should return dto
     @GetMapping("/{id}")
     public Optional<Accommodation> getAccommodation(@PathVariable Long id) {
         return accommodationService.getAccommodation(id);
+    }
+
+    @GetMapping("/{id}/custom-price")
+    public List<CustomPrice> getAccommodationCustomPrice(@PathVariable Long id) {
+        return accommodationService.getAccommodationCustomPrice(id);
+    }
+
+    @GetMapping("/{id}/availabilities")
+    public List<Availability> getAccommodationAvailability(@PathVariable Long id) {
+        return accommodationService.getAccommodationAvailability(id);
     }
 
     @GetMapping("/per-host")
@@ -39,7 +49,6 @@ public class AccommodationController {
         return accommodationService.findPerHostAccommodations(hostId);
     }
 
-    //    TODO: Za sad su sva polja required, mozemo to promeniti
     @GetMapping("/search")
     public List<SearchedAccommodationDto> searchAccommodations(@RequestParam String location, @RequestParam(name = "number-of-guests") int numberOfGuests,
                                                                @RequestParam(name = "start-date") LocalDate startDate, @RequestParam(name = "end-date") LocalDate endDate) {
@@ -63,6 +72,14 @@ public class AccommodationController {
     public void deleteAccommodation(@PathVariable Long id) {
         accommodationService.deleteAccommodation(id);
     }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/by-host-id")
+    public void deleteByHostId(@RequestHeader("Authorization") final String token) {
+        Long hostId = getIdFromToken(token);
+        accommodationService.deleteByHostId(hostId);
+    }
+
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{id}/custom-price")
@@ -93,9 +110,9 @@ public class AccommodationController {
         accommodationService.createAvailability(id, availabilityDto);
     }
 
-    @PutMapping("/availability/{id}")
-    public void updateAvailability(@PathVariable Long id, @Valid @RequestBody AvailabilityUpdateDto availabilityDto, @RequestHeader("Authorization") final String token) {
-        accommodationService.updateAvailability(id, availabilityDto, token);
+    @PutMapping("/{id}/availability/{idOfAvailability}")
+    public void updateAvailability(@PathVariable Long id, @PathVariable Long idOfAvailability, @Valid @RequestBody AvailabilityUpdateDto availabilityDto, @RequestHeader("Authorization") final String token) {
+        accommodationService.updateAvailability(id, idOfAvailability, availabilityDto, token);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

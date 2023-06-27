@@ -19,22 +19,26 @@ public class ResourceServerConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuer;
 
+    //    TODO: Check all endpoints in every backend
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/accommodation/{id}/custom-price").hasRole("HOST")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/accommodation/{id}/availabilities").hasRole("HOST")
                         .requestMatchers(HttpMethod.GET, "/api/v1/accommodation/per-host").hasRole("HOST")
                         .requestMatchers(HttpMethod.POST, "/api/v1/accommodation").hasRole("HOST")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/accommodation/{id}/default-price/{price}").hasRole("HOST")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/accommodation/{id}").hasRole("HOST")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/accommodation/by-host-id").hasRole("HOST")
                         .requestMatchers(HttpMethod.POST, "/api/v1/accommodation/{id}/custom-price").hasRole("HOST")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/accommodation/custom-price/{id}").hasRole("HOST")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/accommodation/{id}/custom-price/{idOfPrice}").hasRole("HOST")
                         .requestMatchers(HttpMethod.POST, "/api/v1/accommodation/{id}/check-availability").hasRole("GUEST")
                         .requestMatchers(HttpMethod.POST, "/api/v1/accommodation/{id}/availability").hasRole("HOST")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/accommodation/availability/{id}").hasRole("HOST")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/accommodation/{id}/availability/{idOfAvailability").hasRole("HOST")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/accommodation/{id}/availability/{idOfAvailability}").hasRole("HOST")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/accommodation/{id}/availability/{idOfAvailability}").hasRole("HOST")
                         .requestMatchers(HttpMethod.GET, "/api/v1/accommodation").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/accommodation/{id}").permitAll()
                         .anyRequest().authenticated()
