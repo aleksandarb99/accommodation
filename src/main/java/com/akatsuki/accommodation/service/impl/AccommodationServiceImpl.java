@@ -224,6 +224,7 @@ public class AccommodationServiceImpl implements AccommodationService {
         }
         return AvailabilityCheckResponseDto.builder()
                 .id(id)
+                .hostId(accommodation.getHostId())
                 .available(available)
                 .totalCost(totalCost)
                 .automaticApprove(accommodation.isAutomaticApprove())
