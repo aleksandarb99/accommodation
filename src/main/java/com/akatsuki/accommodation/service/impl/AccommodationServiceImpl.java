@@ -24,7 +24,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class AccommodationServiceImpl implements AccommodationService {
-
     private final AccommodationRepository accommodationRepository;
     private final CustomPriceRepository customPriceRepository;
     private final AvailabilityRepository availabilityRepository;
@@ -37,8 +36,8 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
-    public Optional<Accommodation> getAccommodation(Long accommodationId) {
-        return accommodationRepository.findById(accommodationId);
+    public Accommodation getAccommodation(Long id) {
+        return accommodationRepository.findById(id).orElseThrow(() -> new BadRequestException(String.format("Accommodation with id '%s' does not exist.", id)));
     }
 
     @Override
@@ -315,13 +314,7 @@ public class AccommodationServiceImpl implements AccommodationService {
             newEndDate = newDate;
         }
 
-        AccommodationInfoDTO accommodationInfoDTO = AccommodationInfoDTO.builder()
-                .accommodationId(id)
-                .startDate(newStartDate)
-                .endDate(newEndDate)
-                .build();
-
-        boolean reservationExistence = reservationFeignClient.checkReservationsOfAccommodation(accommodationInfoDTO, token);
+        boolean reservationExistence = reservationFeignClient.checkReservationsOfAccommodation(id, newStartDate, newEndDate, token);
 
         if (reservationExistence) {
             throw new BadRequestException("Availability cannot be updated duo to existence of reservation.");

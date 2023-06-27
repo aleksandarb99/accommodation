@@ -23,25 +23,21 @@ public class AccommodationController {
     private final AccommodationService accommodationService;
     private final JwtDecoder jwtDecoder;
 
-    //    TODO: This should return dto
     @GetMapping
     public List<Accommodation> findAllAccommodations() {
         return accommodationService.findAll();
     }
 
-    //    TODO: This should return dto
     @GetMapping("/{id}")
     public Optional<Accommodation> getAccommodation(@PathVariable Long id) {
         return accommodationService.getAccommodation(id);
     }
 
-    //    TODO: This should return dto
     @GetMapping("/{id}/custom-price")
     public List<CustomPrice> getAccommodationCustomPrice(@PathVariable Long id) {
         return accommodationService.getAccommodationCustomPrice(id);
     }
 
-    //    TODO: This should return dto
     @GetMapping("/{id}/availabilities")
     public List<Availability> getAccommodationAvailability(@PathVariable Long id) {
         return accommodationService.getAccommodationAvailability(id);
@@ -53,7 +49,6 @@ public class AccommodationController {
         return accommodationService.findPerHostAccommodations(hostId);
     }
 
-    //    TODO: Za sad su sva polja required, mozemo to promeniti
     @GetMapping("/search")
     public List<SearchedAccommodationDto> searchAccommodations(@RequestParam String location, @RequestParam(name = "number-of-guests") int numberOfGuests,
                                                                @RequestParam(name = "start-date") LocalDate startDate, @RequestParam(name = "end-date") LocalDate endDate) {
