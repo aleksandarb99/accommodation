@@ -17,6 +17,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +30,7 @@ public class AccommodationServiceImpl implements AccommodationService {
     private final AvailabilityRepository availabilityRepository;
     private final ModelMapper modelMapper;
     private final ReservationFeignClient reservationFeignClient;
+    private final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
     public List<Accommodation> findAll() {
@@ -314,9 +316,11 @@ public class AccommodationServiceImpl implements AccommodationService {
             newEndDate = newDate;
         }
 
-        boolean reservationExistence = reservationFeignClient.checkReservationsOfAccommodation(id, newStartDate, newEndDate, token);
+        String newStartDateString = formatter.format(newStartDate);
+        String newEndDateString = formatter.format(newEndDate);
+        boolean reservationExistence = reservationFeignClient.checkReservationsOfAccommodation(id, newStartDateString, newEndDateString, token);
 
-        if (reservationExistence) {
+        if (!reservationExistence) {
             throw new BadRequestException("Availability cannot be updated duo to existence of reservation.");
         }
 
